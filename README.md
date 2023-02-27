@@ -9,11 +9,11 @@ If you want to run and test this locally:
 ``` bash
 # One-time: install dependencies
 npm install
-cd agents
+cd starter
 npm install
 
 # serve with hot reload at localhost:8080
-cd agents
+cd starter
 npm run dev
 
 # build for production with minification
