@@ -1,6 +1,11 @@
 # json3d: A web app to view json files in 3d using Babylon.js
 
-View it live at: https://christiansimms.github.io/json3d/
+This setup is based on: https://doc.babylonjs.com/guidedLearning/usingVite
+The idea is to have shared dependencies in the root, and then
+subdirectories with their own which shares the parent directory's dependencies.
+Subdirectory "starter" is just a simple one to start with, you can just copy it.
+
+NOT YET: View it live at: https://christiansimms.github.io/json3d/
 
 ## Build Setup
 
