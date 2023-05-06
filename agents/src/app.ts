@@ -1,6 +1,7 @@
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder } from "@babylonjs/core";
+import {GridMaterial} from '@babylonjs/materials';
 
 class Arena extends Scene {
     constructor(engine: Engine, public app: App) {
@@ -12,6 +13,10 @@ class Arena extends Scene {
 
         const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
         const sphere: Mesh = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, scene);
+
+        const ground = MeshBuilder.CreateGround("ground", {width: 1000, height: 1000}, scene);
+        ground.checkCollisions = true;
+        ground.material = new GridMaterial("mat", scene as any) as any;
     }
 }
 
