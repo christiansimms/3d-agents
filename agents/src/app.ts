@@ -1,6 +1,14 @@
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder } from "@babylonjs/core";
+import {
+    Engine,
+    Scene,
+    Vector3,
+    HemisphericLight,
+    Mesh,
+    MeshBuilder,
+    UniversalCamera
+} from "@babylonjs/core";
 import {GridMaterial} from '@babylonjs/materials';
 
 class Arena extends Scene {
@@ -8,7 +16,7 @@ class Arena extends Scene {
         super(engine);
 
         const scene = this;
-        const camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), scene);
+        const camera= new UniversalCamera("camera", new Vector3(0, 10, -20), scene);
         camera.attachControl(app.canvas, true);
 
         const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
