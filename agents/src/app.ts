@@ -16,7 +16,7 @@ class Arena extends Scene {
         super(engine);
 
         const scene = this;
-        const camera= new UniversalCamera("camera", new Vector3(0, 10, -20), scene);
+        const camera= new UniversalCamera("camera", new Vector3(10, 10, -30), scene);
         camera.attachControl(app.canvas, true);
 
         const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
@@ -40,15 +40,24 @@ class Arena extends Scene {
     }
 
     addAgents(): void {
-        const sphere: Mesh = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, this);
-        sphere.position.y = 1;  // Move it up to avoid ground.
-        sphere.position.z = 10;
+        const agents = [
+            new Color3(1.0, 0, 0),
+            new Color3(0, 1.0, 0),
+            new Color3(0, 0, 1.0)];
+        let xPos = 0;
+        for(const color of agents) {
+            const sphere: Mesh = MeshBuilder.CreateSphere("sphere", {diameter: 1}, this);
+            sphere.position.y = 0.5;  // Move it up to avoid ground.
+            sphere.position.z = 10;
+            sphere.position.x = xPos;
+            xPos += 10;
 
-        // Add color.
-        const material = new StandardMaterial("sphereMaterial", this);
-        material.alpha = 1;
-        material.diffuseColor = new Color3(1.0, 0, 0);
-        sphere.material = material;
+            // Add color.
+            const material = new StandardMaterial("sphereMaterial", this);
+            material.alpha = 1;
+            material.diffuseColor = color;
+            sphere.material = material;
+        }
     }
 }
 
