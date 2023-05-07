@@ -7,13 +7,35 @@ import {
     HemisphericLight,
     Mesh,
     MeshBuilder,
-    UniversalCamera, StandardMaterial, Color3, CreateBox
+    UniversalCamera, StandardMaterial, Color3, CreateBox, Space
 } from "@babylonjs/core";
 import {GridMaterial, SkyMaterial} from '@babylonjs/materials';
 
+function moveAgentToAgent(agent: Agent, target: Agent) {
+    console.log("moveAgentToAgent");
+
+    let targetVec = target.mesh.position;
+    const initVec = agent.mesh.position;
+    const distVec = Vector3.Distance(targetVec, initVec);
+
+    targetVec = targetVec.subtract(initVec);
+    const targetVecNorm = Vector3.Normalize(targetVec);
+
+
+    if (distVec > 0) {
+        // distVec -= 0.1;
+        agent.mesh.translate(targetVecNorm, 0.1, Space.WORLD);
+        console.log(agent.mesh.position);
+    }
+}
+
 class Agent {
-    constructor(public color: Color3, xPos: number) {
-        const sphere: Mesh = MeshBuilder.CreateSphere("sphere", {diameter: 1});
+    mesh: Mesh;
+    wantsToGoToAgent: string;
+
+    constructor(public name: string, public color: Color3, xPos: number, public arena: Arena) {
+        const sphere: Mesh = MeshBuilder.CreateSphere(name, {diameter: 1});
+        this.mesh = sphere;
         sphere.position.y = 0.5;  // Move it up to avoid ground.
         sphere.position.z = 10;
         sphere.position.x = xPos;
@@ -26,20 +48,24 @@ class Agent {
     }
 
     run() {
-
+        if (this.wantsToGoToAgent) {
+            const target = this.arena.findAgent(this.wantsToGoToAgent);
+            moveAgentToAgent(this, target);
+        }
     }
 }
 
 class Arena extends Scene {
     agents: Agent[] = [];
+
     constructor(engine: Engine, public app: App) {
         super(engine);
 
         const scene = this;
-        const camera= new UniversalCamera("camera", new Vector3(10, 10, -30), scene);
+        const camera = new UniversalCamera("camera", new Vector3(10, 10, -30), scene);
         camera.attachControl(app.canvas, true);
 
-        /*const light1: HemisphericLight =*/ new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
+        new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
 
         const ground = MeshBuilder.CreateGround("ground", {width: 1000, height: 1000}, scene);
         ground.checkCollisions = true;
@@ -63,20 +89,27 @@ class Arena extends Scene {
     }
 
     addAgents(): void {
-        const agents = [
-            new Color3(1.0, 0, 0),
-            new Color3(0, 1.0, 0),
-            new Color3(0, 0, 1.0)];
+        const agents: [string, Color3][] = [
+            ["red", new Color3(1.0, 0, 0)],
+            ["green", new Color3(0, 1.0, 0)],
+            ["blue", new Color3(0, 0, 1.0)]];
         let xPos = 0;
-        for(const color of agents) {
-            this.agents.push(new Agent(color, xPos));
+        for (const [name, color] of agents) {
+            this.agents.push(new Agent(name, color, xPos, this));
             xPos += 10;
         }
+        this.findAgent("green").wantsToGoToAgent = "blue";
+    }
+
+    findAgent(name: string): Agent {
+        const found = this.agents.find(agent => agent.name === name);
+        return found;
     }
 }
 
 class App {
     canvas: HTMLCanvasElement;
+
     constructor() {
         // Get the canvas element
         const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
@@ -108,4 +141,5 @@ class App {
         });
     }
 }
+
 new App();
