@@ -24,6 +24,10 @@ class Agent {
         material.diffuseColor = color;
         sphere.material = material;
     }
+
+    run() {
+
+    }
 }
 
 class Arena extends Scene {
@@ -44,7 +48,7 @@ class Arena extends Scene {
         this.addSkyMaterial();
         this.addAgents();
         scene.registerBeforeRender(() => {
-
+            this.agents.forEach(agent => agent.run());
         });
     }
 
@@ -81,6 +85,10 @@ class App {
         // initialize babylon scene and engine
         const engine = new Engine(canvas, true);
         const scene = new Arena(engine, this);
+        setTimeout(() => {
+            this.canvas.tabIndex = 1;  // Need to do this before calling focus().
+            this.canvas.focus();
+        }, 0);
 
         // hide/show the Inspector
         window.addEventListener("keydown", (ev) => {
