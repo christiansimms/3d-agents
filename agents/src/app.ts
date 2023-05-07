@@ -7,11 +7,27 @@ import {
     HemisphericLight,
     Mesh,
     MeshBuilder,
-    UniversalCamera, BoxBuilder, StandardMaterial, Color3
+    UniversalCamera, StandardMaterial, Color3, CreateBox
 } from "@babylonjs/core";
 import {GridMaterial, SkyMaterial} from '@babylonjs/materials';
 
+class Agent {
+    constructor(public color: Color3, xPos: number) {
+        const sphere: Mesh = MeshBuilder.CreateSphere("sphere", {diameter: 1});
+        sphere.position.y = 0.5;  // Move it up to avoid ground.
+        sphere.position.z = 10;
+        sphere.position.x = xPos;
+
+        // Add color.
+        const material = new StandardMaterial("sphereMaterial");
+        material.alpha = 1;
+        material.diffuseColor = color;
+        sphere.material = material;
+    }
+}
+
 class Arena extends Scene {
+    agents: Agent[] = [];
     constructor(engine: Engine, public app: App) {
         super(engine);
 
@@ -19,7 +35,7 @@ class Arena extends Scene {
         const camera= new UniversalCamera("camera", new Vector3(10, 10, -30), scene);
         camera.attachControl(app.canvas, true);
 
-        const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
+        /*const light1: HemisphericLight =*/ new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
 
         const ground = MeshBuilder.CreateGround("ground", {width: 1000, height: 1000}, scene);
         ground.checkCollisions = true;
@@ -27,6 +43,9 @@ class Arena extends Scene {
 
         this.addSkyMaterial();
         this.addAgents();
+        scene.registerBeforeRender(() => {
+
+        });
     }
 
     addSkyMaterial(): void {
@@ -35,7 +54,7 @@ class Arena extends Scene {
         skyMaterial.inclination = 0;
         skyMaterial.turbidity = 0.5;
         skyMaterial.cameraOffset.y = 0;
-        const skybox = BoxBuilder.CreateBox("skyBox", {size: 10000.0}, this);
+        const skybox = CreateBox("skyBox", {size: 10000.0}, this);
         skybox.material = skyMaterial;
     }
 
@@ -46,17 +65,8 @@ class Arena extends Scene {
             new Color3(0, 0, 1.0)];
         let xPos = 0;
         for(const color of agents) {
-            const sphere: Mesh = MeshBuilder.CreateSphere("sphere", {diameter: 1}, this);
-            sphere.position.y = 0.5;  // Move it up to avoid ground.
-            sphere.position.z = 10;
-            sphere.position.x = xPos;
+            this.agents.push(new Agent(color, xPos));
             xPos += 10;
-
-            // Add color.
-            const material = new StandardMaterial("sphereMaterial", this);
-            material.alpha = 1;
-            material.diffuseColor = color;
-            sphere.material = material;
         }
     }
 }
