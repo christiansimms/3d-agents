@@ -7,9 +7,9 @@ import {
     HemisphericLight,
     Mesh,
     MeshBuilder,
-    UniversalCamera
+    UniversalCamera, BoxBuilder
 } from "@babylonjs/core";
-import {GridMaterial} from '@babylonjs/materials';
+import {GridMaterial, SkyMaterial} from '@babylonjs/materials';
 
 class Arena extends Scene {
     constructor(engine: Engine, public app: App) {
@@ -25,6 +25,18 @@ class Arena extends Scene {
         const ground = MeshBuilder.CreateGround("ground", {width: 1000, height: 1000}, scene);
         ground.checkCollisions = true;
         ground.material = new GridMaterial("mat", scene as any) as any;
+
+        this.addSkyMaterial();
+    }
+
+    addSkyMaterial(): void {
+        const skyMaterial = new SkyMaterial("skyMaterial", this);
+        skyMaterial.backFaceCulling = false;
+        skyMaterial.inclination = 0;
+        skyMaterial.turbidity = 0.5;
+        skyMaterial.cameraOffset.y = 0;
+        const skybox = BoxBuilder.CreateBox("skyBox", {size: 10000.0}, this);
+        skybox.material = skyMaterial;
     }
 }
 
