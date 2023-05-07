@@ -31,13 +31,9 @@ class Arena extends Scene {
 class App {
     canvas: HTMLCanvasElement;
     constructor() {
-        // create the canvas html element and attach it to the webpage
-        const canvas = document.createElement("canvas");
+        // Get the canvas element
+        const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
         this.canvas = canvas;
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.id = "gameCanvas";
-        document.body.appendChild(canvas);
 
         // initialize babylon scene and engine
         const engine = new Engine(canvas, true);
