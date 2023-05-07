@@ -7,7 +7,7 @@ import {
     HemisphericLight,
     Mesh,
     MeshBuilder,
-    UniversalCamera, BoxBuilder
+    UniversalCamera, BoxBuilder, StandardMaterial, Color3
 } from "@babylonjs/core";
 import {GridMaterial, SkyMaterial} from '@babylonjs/materials';
 
@@ -20,13 +20,13 @@ class Arena extends Scene {
         camera.attachControl(app.canvas, true);
 
         const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
-        const sphere: Mesh = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, scene);
 
         const ground = MeshBuilder.CreateGround("ground", {width: 1000, height: 1000}, scene);
         ground.checkCollisions = true;
         ground.material = new GridMaterial("mat", scene as any) as any;
 
         this.addSkyMaterial();
+        this.addAgents();
     }
 
     addSkyMaterial(): void {
@@ -37,6 +37,18 @@ class Arena extends Scene {
         skyMaterial.cameraOffset.y = 0;
         const skybox = BoxBuilder.CreateBox("skyBox", {size: 10000.0}, this);
         skybox.material = skyMaterial;
+    }
+
+    addAgents(): void {
+        const sphere: Mesh = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, this);
+        sphere.position.y = 1;  // Move it up to avoid ground.
+        sphere.position.z = 10;
+
+        // Add color.
+        const material = new StandardMaterial("sphereMaterial", this);
+        material.alpha = 1;
+        material.diffuseColor = new Color3(1.0, 0, 0);
+        sphere.material = material;
     }
 }
 
