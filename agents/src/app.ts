@@ -43,7 +43,7 @@ export function addPhysicsAggregate(
 }
 
 
-function moveAgentToAgent(agent: Agent, target: Agent) {
+function moveAgentToAgentIgnorePhysics(agent: Agent, target: Agent) {
     let targetVec = target.mesh.position;
     const initVec = agent.mesh.position;
     const distVec = Vector3.Distance(targetVec, initVec);
@@ -55,6 +55,19 @@ function moveAgentToAgent(agent: Agent, target: Agent) {
         // distVec -= 0.1;
         agent.mesh.translate(targetVecNorm, 0.1, Space.WORLD);
         // console.log(agent.mesh.position);
+    }
+}
+
+function moveAgentToAgent(agent: Agent, target: Agent) {
+    let targetVec = target.mesh.position;
+    const initVec = agent.mesh.position;
+    const distVec = Vector3.Distance(targetVec, initVec);
+
+    targetVec = targetVec.subtract(initVec);
+    targetVec.scaleInPlace(0.001);
+
+    if (distVec > 0) {
+        agent.mesh.physicsBody.applyImpulse(targetVec, new Vector3(0, 0, 0));
     }
 }
 
