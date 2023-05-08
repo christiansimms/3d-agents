@@ -7,13 +7,26 @@ import {
     HemisphericLight,
     Mesh,
     MeshBuilder,
-    UniversalCamera, StandardMaterial, Color3, CreateBox, Space
+    UniversalCamera, StandardMaterial, Color3, CreateBox, Space, HavokPlugin
 } from "@babylonjs/core";
 import {GridMaterial, SkyMaterial} from '@babylonjs/materials';
+import HavokPhysics from "@babylonjs/havok";
+
+const IS_DEV = true;  // oops will break build I guess, see: https://github.com/michealparks/babylon-template/blob/main/src/physics.ts
+
+export const initPhysics = async (scene: Scene) => {
+  // const url = IS_DEV ? 'node_modules/@babylonjs/havok/lib/esm/HavokPhysics.wasm' : 'HavokPhysics.wasm'
+  const url = 'HavokPhysics.wasm';  // 2023-05-08: watch out I put a copy in public
+  const response = await fetch(url)
+  const wasmBinary = await response.arrayBuffer()
+  const havokInstance = await HavokPhysics({ wasmBinary })
+  const havokPlugin = new HavokPlugin(true, havokInstance)
+  const gravityVector = new Vector3(0, -9.81, 0);
+  scene.enablePhysics(gravityVector, havokPlugin)
+}
+
 
 function moveAgentToAgent(agent: Agent, target: Agent) {
-    console.log("moveAgentToAgent");
-
     let targetVec = target.mesh.position;
     const initVec = agent.mesh.position;
     const distVec = Vector3.Distance(targetVec, initVec);
@@ -24,7 +37,7 @@ function moveAgentToAgent(agent: Agent, target: Agent) {
     if (distVec > 0) {
         // distVec -= 0.1;
         agent.mesh.translate(targetVecNorm, 0.1, Space.WORLD);
-        console.log(agent.mesh.position);
+        // console.log(agent.mesh.position);
     }
 }
 
@@ -65,10 +78,15 @@ class Arena extends Scene {
 
     constructor(engine: Engine, public app: App) {
         super(engine);
+    }
 
+    async setup() {
         const scene = this;
+
+        await initPhysics(scene);
+
         const camera = new UniversalCamera("camera", new Vector3(10, 10, -30), scene);
-        camera.attachControl(app.canvas, true);
+        camera.attachControl(this.app.canvas, true);
 
         new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
 
@@ -116,6 +134,9 @@ class App {
     canvas: HTMLCanvasElement;
 
     constructor() {
+    }
+
+    async run() {
         // Get the canvas element
         const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
         this.canvas = canvas;
@@ -123,6 +144,7 @@ class App {
         // initialize babylon scene and engine
         const engine = new Engine(canvas, true);
         const scene = new Arena(engine, this);
+        await scene.setup();
         setTimeout(() => {
             this.canvas.tabIndex = 1;  // Need to do this before calling focus().
             this.canvas.focus();
@@ -147,4 +169,4 @@ class App {
     }
 }
 
-new App();
+new App().run();
