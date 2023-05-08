@@ -64,7 +64,7 @@ function moveAgentToAgent(agent: Agent, target: Agent) {
     const distVec = Vector3.Distance(targetVec, initVec);
 
     targetVec = targetVec.subtract(initVec);
-    targetVec.scaleInPlace(0.5);
+    targetVec.scaleInPlace(1.5);
 
     // console.log("Distance: ", distVec);
     if (distVec > 2) {
