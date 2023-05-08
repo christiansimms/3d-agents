@@ -21,7 +21,6 @@ function moveAgentToAgent(agent: Agent, target: Agent) {
     targetVec = targetVec.subtract(initVec);
     const targetVecNorm = Vector3.Normalize(targetVec);
 
-
     if (distVec > 0) {
         // distVec -= 0.1;
         agent.mesh.translate(targetVecNorm, 0.1, Space.WORLD);
@@ -39,6 +38,8 @@ class Agent {
         sphere.position.y = 0.5;  // Move it up to avoid ground.
         sphere.position.z = 10;
         sphere.position.x = xPos;
+        // Below is needed since we use registerBeforeRender, otherwise first translate doesn't work right.
+        sphere.computeWorldMatrix(true);
 
         // Add color.
         const material = new StandardMaterial("sphereMaterial");
