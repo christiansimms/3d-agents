@@ -1,16 +1,22 @@
-import "@babylonjs/core/Debug/debugLayer";
-import "@babylonjs/inspector";
 import {
+    Color3,
+    CreateBox,
     Engine,
-    Scene,
-    Vector3,
+    HavokPlugin,
     HemisphericLight,
     Mesh,
     MeshBuilder,
-    UniversalCamera, StandardMaterial, Color3, CreateBox, Space, HavokPlugin
+    PhysicsAggregate,
+    PhysicsShapeType,
+    Scene,
+    Space,
+    StandardMaterial,
+    UniversalCamera,
+    Vector3
 } from "@babylonjs/core";
-import {GridMaterial, SkyMaterial} from '@babylonjs/materials';
 import HavokPhysics from "@babylonjs/havok";
+import "@babylonjs/inspector";
+import {GridMaterial, SkyMaterial} from '@babylonjs/materials';
 
 const IS_DEV = true;  // oops will break build I guess, see: https://github.com/michealparks/babylon-template/blob/main/src/physics.ts
 
@@ -23,6 +29,17 @@ export const initPhysics = async (scene: Scene) => {
   const havokPlugin = new HavokPlugin(true, havokInstance)
   const gravityVector = new Vector3(0, -9.81, 0);
   scene.enablePhysics(gravityVector, havokPlugin)
+}
+
+export function addPhysicsAggregate(
+  mesh: Mesh,
+  shape: PhysicsShapeType.SPHERE | PhysicsShapeType.BOX,
+  scene: Scene,
+  mass: number = 1,
+  restitution: number = 0.9
+) {
+  mesh.metadata = {}
+  mesh.metadata.aggregate = new PhysicsAggregate(mesh, shape, { mass, restitution }, scene)
 }
 
 
@@ -57,6 +74,7 @@ class Agent {
         mesh.position.x = xPos;
         // Below is needed since we use registerBeforeRender, otherwise first translate doesn't work right.
         mesh.computeWorldMatrix(true);
+        addPhysicsAggregate(mesh, PhysicsShapeType.BOX, arena);
 
         // Add color.
         const material = new StandardMaterial("sphereMaterial");
@@ -91,8 +109,10 @@ class Arena extends Scene {
         new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
 
         const ground = MeshBuilder.CreateGround("ground", {width: 1000, height: 1000}, scene);
-        ground.checkCollisions = true;
+        // ground.checkCollisions = true;
         ground.material = new GridMaterial("mat", scene as any) as any;
+        addPhysicsAggregate(ground, PhysicsShapeType.BOX, scene, 0);
+
 
         this.addSkyMaterial();
         this.addAgents();
