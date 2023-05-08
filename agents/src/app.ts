@@ -33,19 +33,23 @@ class Agent {
     wantsToGoToAgent: string;
 
     constructor(public name: string, public color: Color3, xPos: number, public arena: Arena) {
-        const sphere: Mesh = MeshBuilder.CreateSphere(name, {diameter: 1});
-        this.mesh = sphere;
-        sphere.position.y = 0.5;  // Move it up to avoid ground.
-        sphere.position.z = 10;
-        sphere.position.x = xPos;
+        if (false) {
+            this.mesh = MeshBuilder.CreateSphere(name, {diameter: 1});
+        } else {
+            this.mesh = CreateBox(name, {size: 1}, arena);
+        }
+        const mesh = this.mesh;
+        mesh.position.y = 0.5;  // Move it up to avoid ground.
+        mesh.position.z = 10;
+        mesh.position.x = xPos;
         // Below is needed since we use registerBeforeRender, otherwise first translate doesn't work right.
-        sphere.computeWorldMatrix(true);
+        mesh.computeWorldMatrix(true);
 
         // Add color.
         const material = new StandardMaterial("sphereMaterial");
         material.alpha = 1;
         material.diffuseColor = color;
-        sphere.material = material;
+        mesh.material = material;
     }
 
     run() {
