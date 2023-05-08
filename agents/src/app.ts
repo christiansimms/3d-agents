@@ -64,10 +64,13 @@ function moveAgentToAgent(agent: Agent, target: Agent) {
     const distVec = Vector3.Distance(targetVec, initVec);
 
     targetVec = targetVec.subtract(initVec);
-    targetVec.scaleInPlace(0.001);
+    targetVec.scaleInPlace(0.5);
 
-    if (distVec > 0) {
-        agent.mesh.physicsBody.applyImpulse(targetVec, new Vector3(0, 0, 0));
+    // console.log("Distance: ", distVec);
+    if (distVec > 2) {
+        agent.mesh.physicsBody.setLinearVelocity(targetVec);
+    } else {
+        agent.mesh.physicsBody.setLinearVelocity(new Vector3(0, 0, 0));
     }
 }
 
@@ -122,7 +125,6 @@ class Arena extends Scene {
         new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
 
         const ground = MeshBuilder.CreateGround("ground", {width: 1000, height: 1000}, scene);
-        // ground.checkCollisions = true;
         ground.material = new GridMaterial("mat", scene as any) as any;
         addPhysicsAggregate(ground, PhysicsShapeType.BOX, scene, 0);
 
